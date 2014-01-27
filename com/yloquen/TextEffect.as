@@ -14,14 +14,17 @@ package com.yloquen
 	import com.greensock.easing.Quint;
 	import com.greensock.easing.Sine;
 	import com.greensock.easing.Strong;
+	import com.greensock.plugins.HexColorsPlugin;
+	import com.greensock.plugins.TweenPlugin;
+
+	import flash.geom.Point;
+
+	import starling.display.DisplayObject;
 
 	import starling.display.DisplayObjectContainer;
 	import starling.display.Image;
 
-	// TODO pivots
-	// TODO per character pivot
-	// TODO - link scaleX & scaleY
-	// TODO - colors
+	// TODO pivot tweening
 	// TODO - GUI editor
 	// TODO - saving presets as JSON
 
@@ -71,28 +74,40 @@ package com.yloquen
 		public static const MIN_DURATION:Number = .2;
 		public static const MAX_START_DURATION:Number = 1;
 		public static const MAX_END_DURATION:Number = 1;
-		public static const PROBABILITY:Number = .6;
-		public static const RANDOM_EASE_PER_LETTER:Number = .3;
+		public static const PROBABILITY:Number = .5;
+		public static const RANDOM_EASE_PER_LETTER:Number = .2;
 
 
 		private static const randomGenerationSettings:Array =
 		[
 			{prop:"y",          probability:PROBABILITY,        lowLimit:-200,          highLimit:500,          masterDelayRange:MASTER_DELAY_RANGE, delayDurationRange:DELAY_DURATION_RANGE,     minDuration:MIN_DURATION,   maxStartDuration:MAX_START_DURATION,     maxEndDuration:MAX_END_DURATION},
 			{prop:"x",          probability:PROBABILITY,        lowLimit:-200,          highLimit:500,          masterDelayRange:MASTER_DELAY_RANGE, delayDurationRange:DELAY_DURATION_RANGE,     minDuration:MIN_DURATION,   maxStartDuration:MAX_START_DURATION,     maxEndDuration:MAX_END_DURATION},
-			{prop:"scaleX",     probability:PROBABILITY,        lowLimit:-40,            highLimit:40,           masterDelayRange:MASTER_DELAY_RANGE, delayDurationRange:DELAY_DURATION_RANGE,     minDuration:MIN_DURATION,   maxStartDuration:MAX_START_DURATION,     maxEndDuration:MAX_END_DURATION},
-			{prop:"scaleY",     probability:PROBABILITY,        lowLimit:-40,            highLimit:40,           masterDelayRange:MASTER_DELAY_RANGE, delayDurationRange:DELAY_DURATION_RANGE,     minDuration:MIN_DURATION,   maxStartDuration:MAX_START_DURATION,     maxEndDuration:MAX_END_DURATION},
+			{prop:"scaleX",     probability:.3,                 lowLimit:-40,           highLimit:40,           masterDelayRange:MASTER_DELAY_RANGE, delayDurationRange:DELAY_DURATION_RANGE,     minDuration:MIN_DURATION,   maxStartDuration:MAX_START_DURATION,     maxEndDuration:MAX_END_DURATION},
+			{prop:"scaleY",     probability:.3,                 lowLimit:-40,           highLimit:40,           masterDelayRange:MASTER_DELAY_RANGE, delayDurationRange:DELAY_DURATION_RANGE,     minDuration:MIN_DURATION,   maxStartDuration:MAX_START_DURATION,     maxEndDuration:MAX_END_DURATION},
 			{prop:"rotation",   probability:PROBABILITY,        lowLimit:-Math.PI*4,    highLimit:Math.PI*4,    masterDelayRange:MASTER_DELAY_RANGE, delayDurationRange:DELAY_DURATION_RANGE,     minDuration:MIN_DURATION,   maxStartDuration:MAX_START_DURATION,     maxEndDuration:MAX_END_DURATION},
 			{prop:"skewX",      probability:PROBABILITY,        lowLimit:-Math.PI*4,    highLimit:Math.PI*4,    masterDelayRange:MASTER_DELAY_RANGE, delayDurationRange:DELAY_DURATION_RANGE,     minDuration:MIN_DURATION,   maxStartDuration:MAX_START_DURATION,     maxEndDuration:MAX_END_DURATION},
 			{prop:"skewY",      probability:PROBABILITY,        lowLimit:-Math.PI*4,    highLimit:Math.PI*4,    masterDelayRange:MASTER_DELAY_RANGE, delayDurationRange:DELAY_DURATION_RANGE,     minDuration:MIN_DURATION,   maxStartDuration:MAX_START_DURATION,     maxEndDuration:MAX_END_DURATION},
-			{prop:"alpha",      probability:1,                  lowLimit:0,             highLimit:0,            masterDelayRange:MASTER_DELAY_RANGE, delayDurationRange:DELAY_DURATION_RANGE,     minDuration:MIN_DURATION,   maxStartDuration:.3,    maxEndDuration:.3},
+			{prop:"color",      probability:.5,                 lowLimit:0xffffff,      highLimit:0xffffff,     masterDelayRange:MASTER_DELAY_RANGE, delayDurationRange:DELAY_DURATION_RANGE,     minDuration:MIN_DURATION,   maxStartDuration:MAX_START_DURATION,     maxEndDuration:MAX_END_DURATION},
+			{prop:"alpha",      probability:1,                  lowLimit:0,             highLimit:0,            masterDelayRange:MASTER_DELAY_RANGE, delayDurationRange:DELAY_DURATION_RANGE,     minDuration:MIN_DURATION,   maxStartDuration:MAX_START_DURATION/2,    maxEndDuration:MAX_END_DURATION/2},
 		];
 
-		private var multiTweens:Vector.<MultiTween>;
+		private static const PER_CHARACTER_PIVOT_PROBABILITY:Number= .2;
+		private static const CENTER_PIVOT_PROBABILITY:Number= .5;
+		private static const PIVOT_RANGE:Number= 2;
+		private static const LINKED_SCALE_PROBABILITY:Number = .5;
+
+
+		private var _multiTweens:Vector.<MultiTween>;
+		private var _randomPivotPerChar:Boolean;
+		private var _pivot:Point;
+
 
 
 		public function TextEffect()
 		{
-			this.multiTweens = new Vector.<MultiTween>();
+			TweenPlugin.activate([HexColorsPlugin]);
+			this._multiTweens = new Vector.<MultiTween>();
+			this._pivot = new Point(0,0);
 		}
 
 
@@ -105,60 +120,134 @@ package com.yloquen
 		public static function generateRandom():TextEffect
 		{
 			var textEffect:TextEffect = new TextEffect();
+			var scaleApplied:Boolean = false;
+
+			if (Math.random()<PER_CHARACTER_PIVOT_PROBABILITY)
+			{
+				textEffect.randomPivotPerChar = true;
+			}
+			else
+			{
+				if (Math.random()<CENTER_PIVOT_PROBABILITY)
+				{
+					textEffect.pivot = new Point(.5,.5);
+				}
+				else
+				{
+				 	textEffect.pivot = new Point(.5 - Math.random()*PIVOT_RANGE/2 + PIVOT_RANGE, .5 - Math.random()*PIVOT_RANGE/2 + PIVOT_RANGE);
+				}
+			}
 
 			for each (var obj:Object in randomGenerationSettings)
 			{
 				if (Math.random()<obj.probability)
 				{
+					if (obj.prop == "scaleX" || obj.prop == "scaleY")
+						scaleApplied = true;
+
 					var multiTween:MultiTween = new MultiTween();
 					multiTween.propertySettings(obj.prop, Math.random()*obj.lowLimit, Math.random()*obj.highLimit, getRandomEase(), getRandomEase(), Math.random()<RANDOM_EASE_PER_LETTER);
 					multiTween.timingSettings(CharOrder.getRandomOrderFunction(), obj.masterDelayRange*Math.random(), obj.delayDurationRange*Math.random(), getRandomEase(), obj.minDuration+Math.random()*obj.maxStartDuration, obj.minDuration+Math.random()*obj.maxEndDuration, getRandomEase());
 					textEffect.addTween(multiTween);
-
-					trace(JSON.stringify(multiTween));
 				}
 			}
+
+			if (!scaleApplied && Math.random()<LINKED_SCALE_PROBABILITY)
+			{
+				var sXtween:MultiTween = new MultiTween();
+				sXtween.propertySettings("scaleX", Math.random()*obj.lowLimit, Math.random()*obj.highLimit, getRandomEase(), getRandomEase());
+				sXtween.timingSettings(CharOrder.getRandomOrderFunction(), obj.masterDelayRange*Math.random(), obj.delayDurationRange*Math.random(), getRandomEase(), obj.minDuration+Math.random()*obj.maxStartDuration, obj.minDuration+Math.random()*obj.maxEndDuration, getRandomEase());
+				textEffect.addTween(sXtween);
+
+				var sYtween:MultiTween = new MultiTween();
+				sYtween.propertySettings("scaleY", sXtween.firstVal, sXtween.lastVal, sXtween.distribFunc, sXtween.tweenEase)
+				sYtween.timingSettings(sXtween.pickupOrder, sXtween.masterDelay, sXtween.delayDuration, sXtween.delayDistrib, sXtween.firstDuration, sXtween.lastDuration, sXtween.durationDistrib);
+				textEffect.addTween(sYtween);
+			}
+
 			return textEffect;
 		}
 
 
 		public function addTween(multiTween:MultiTween):void
 		{
-			this.multiTweens.push(multiTween);
+			this._multiTweens.push(multiTween);
 		}
 
 
 		public function apply(charContainer:DisplayObjectContainer):void
 		{
-			for (var j:int=0; j < multiTweens.length; j++)
+			var char:Image;
+			for (var i:int=0; i <charContainer.numChildren; i++)
 			{
-				var multiTween:MultiTween=multiTweens[j];
+				char = charContainer.getChildAt(i) as Image;
+				if (_randomPivotPerChar)
+				{
+					char.pivotX = char.texture.width*(.5 - Math.random()*PIVOT_RANGE/2 + PIVOT_RANGE);
+					char.pivotY = char.texture.height*(.5 - Math.random()*PIVOT_RANGE/2 + PIVOT_RANGE);
+					char.x += char.pivotX*char.scaleX;
+					char.y += char.pivotY*char.scaleY;
+				}
+				else
+				{
+					char.pivotX = char.texture.width * this._pivot.x;
+					char.pivotY = char.texture.height * this._pivot.y;
+					char.x += char.pivotX*char.scaleX;
+					char.y += char.pivotY*char.scaleY;
+				}
+			}
+
+			for (var j:int=0; j < _multiTweens.length; j++)
+			{
+				var multiTween:MultiTween=_multiTweens[j];
 				var numChildren:Number = charContainer.numChildren;
 				var order:Vector.<int> = CharOrder.getOrder(numChildren, multiTween.pickupOrder);
+				var color:Boolean = (multiTween.prop == "color");
 
-				 for (var i:int=0; i <numChildren; i++)
+				 for (i=0; i <numChildren; i++)
 				 {
-					 var char:Image = charContainer.getChildAt(order[i]) as Image;
-					 var ratioInput:Number = order[i]/numChildren;
+					 char = charContainer.getChildAt(order[i]) as Image;
+					 var ratioInput:Number = i/numChildren;
 
 					 var tweenObj:Object = {};
-					 tweenObj[multiTween.prop] = char[multiTween.prop];
 					 tweenObj["delay"] = multiTween.masterDelay + multiTween.delayDuration*multiTween.delayDistrib.getRatio(ratioInput);
+
 					 if (multiTween.randomEase)
 					 {
-					    tweenObj["ease"] = getRandomEase();//multiTween.tweenEase;
+					    tweenObj["ease"] = getRandomEase();
 					 }
 					 else
 					 {
 						 tweenObj["ease"] = multiTween.tweenEase;
 					 }
 
-					 TweenMax.to(char, multiTween.startDuration + multiTween.durationRange*multiTween.durationDistrib.getRatio(ratioInput), tweenObj);
-
-					 char[multiTween.prop] = multiTween.firstVal + multiTween.valueRange*multiTween.distribFunc.getRatio(ratioInput);
+					 if (color)
+					 {
+						 tweenObj["hexColors"] = {color:char.color};
+						 TweenMax.to(char, multiTween.firstDuration + multiTween.durationRange*multiTween.durationDistrib.getRatio(ratioInput), tweenObj);
+						 char.color = tweenColor(multiTween.firstVal, multiTween.lastVal, multiTween.distribFunc.getRatio(ratioInput));
+					 }
+					 else
+					 {
+						 tweenObj[multiTween.prop] = char[multiTween.prop];
+						 TweenMax.to(char, multiTween.firstDuration + multiTween.durationRange*multiTween.durationDistrib.getRatio(ratioInput), tweenObj);
+						 char[multiTween.prop] = multiTween.firstVal + multiTween.valueRange*multiTween.distribFunc.getRatio(ratioInput);
+					 }
 				 }
-
 			}
+		}
+
+
+		public function tweenColor(startColor:uint, endColor:uint, ratio:Number):uint
+		{
+			var r:uint = startColor >> 16;
+			var g:uint = startColor >> 8 & 0xFF;
+			var b:uint = startColor & 0xFF;
+			r += ((endColor >> 16)-r)*ratio;
+			g += ((endColor >> 8 & 0xFF)-g)*ratio;
+			b += ((endColor & 0xFF)-b)*ratio;
+
+			return(r<<16 | g<<8 | b);
 		}
 
 
@@ -167,6 +256,26 @@ package com.yloquen
 		   return eases[int(Math.floor(Math.random()*eases.length))];
 		}
 
+		public function get pivot():Point
+		{
+			return _pivot;
+		}
+
+
+		public function set pivot(value:Point):void
+		{
+			_pivot=value;
+		}
+
+		public function get randomPivotPerChar():Boolean
+		{
+			return _randomPivotPerChar;
+		}
+
+		public function set randomPivotPerChar(value:Boolean):void
+		{
+			_randomPivotPerChar=value;
+		}
 
 	}
 }
