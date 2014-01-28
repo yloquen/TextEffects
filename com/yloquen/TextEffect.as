@@ -19,14 +19,12 @@ package com.yloquen
 
 	import flash.geom.Point;
 
-	import starling.display.DisplayObject;
-
 	import starling.display.DisplayObjectContainer;
 	import starling.display.Image;
 
 	// TODO pivot tweening
 	// TODO - GUI editor
-	// TODO - saving presets as JSON
+	// TODO - saving/loading presets as JSON
 
 	public class TextEffect
 	{
@@ -256,6 +254,7 @@ package com.yloquen
 		   return eases[int(Math.floor(Math.random()*eases.length))];
 		}
 
+
 		public function get pivot():Point
 		{
 			return _pivot;
@@ -272,10 +271,12 @@ package com.yloquen
 			return _randomPivotPerChar;
 		}
 
+
 		public function set randomPivotPerChar(value:Boolean):void
 		{
 			_randomPivotPerChar=value;
 		}
+
 
 	}
 }
