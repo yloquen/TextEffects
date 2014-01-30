@@ -5,8 +5,8 @@ package com.yloquen
 	public class MultiTween
 	{
 		public var prop:String;
-		public var firstVal:Number;
-		public var lastVal:Number;
+		private var _firstVal:Number;
+		private var _lastVal:Number;
 		public var valueRange:Number;
 		public var distribFunc:Ease;
 		public var tweenEase:Ease;
@@ -17,8 +17,8 @@ package com.yloquen
 		public var delayDuration:Number;
 		public var delayDistrib:Ease;
 
-		public var firstDuration:Number;
-		public var lastDuration:Number;
+		private var _firstDuration:Number;
+		private var _lastDuration:Number;
 		public var durationRange:Number;
 		public var durationDistrib:Ease;
 
@@ -35,8 +35,8 @@ package com.yloquen
 		public function propertySettings(prop:String, firstVal:Number, lastVal:Number, distribFunc:Ease, tweenEase:Ease, randomEase:Boolean = false):void
 		{
 			this.prop = prop;
-			this.firstVal = firstVal;
-			this.lastVal = lastVal;
+			this._firstVal = firstVal;
+			this._lastVal = lastVal;
 			this.valueRange = lastVal - firstVal;
 			this.distribFunc = distribFunc;
 			this.tweenEase = tweenEase;
@@ -61,11 +61,54 @@ package com.yloquen
 			this.delayDuration = delayDuration;
 			this.delayDistrib = delayDistrib;
 
-			this.firstDuration = firstDuration;
-			this.lastDuration = lastDuration;
+			this._firstDuration = firstDuration;
+			this._lastDuration = lastDuration;
 			this.durationRange = lastDuration - firstDuration;
 			this.durationDistrib = durationDistrib;
 		}
 
+		public function get firstVal():Number
+		{
+			return _firstVal;
+		}
+
+		public function set firstVal(value:Number):void
+		{
+			_firstVal=value;
+			valueRange = _lastVal - _firstVal;
+		}
+
+		public function get lastVal():Number
+		{
+			return _lastVal;
+		}
+
+		public function set lastVal(value:Number):void
+		{
+			_lastVal=value;
+			valueRange = _lastVal - _firstVal;
+		}
+
+		public function get firstDuration():Number
+		{
+			return _firstDuration;
+		}
+
+		public function set firstDuration(value:Number):void
+		{
+			_firstDuration=value;
+			this.durationRange = _lastDuration - _firstDuration;
+		}
+
+		public function get lastDuration():Number
+		{
+			return _lastDuration;
+		}
+
+		public function set lastDuration(value:Number):void
+		{
+			_lastDuration=value;
+			this.durationRange = _lastDuration - _firstDuration;
+		}
 	}
 }

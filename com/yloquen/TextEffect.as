@@ -278,5 +278,10 @@ package com.yloquen
 		}
 
 
+		public function get multiTweens():Vector.<MultiTween>
+		{
+			return _multiTweens;
+		}
+
 	}
 }
