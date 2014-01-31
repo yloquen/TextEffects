@@ -4,10 +4,12 @@ package com.kizzo.views
     import com.greensock.TweenMax;
 
 	import com.yloquen.MultiTween;
+	import com.yloquen.Presets;
 
 	import com.yloquen.TextEffect;
 
 	import feathers.controls.Button;
+	import feathers.controls.NumericStepper;
 
 	import feathers.controls.ProgressBar;
 	import feathers.themes.MetalWorksMobileTheme;
@@ -45,6 +47,7 @@ package com.kizzo.views
 		private var textEffect:TextEffect;
 		private var charContainer:Sprite;
 		private var randomizeButton:Button;
+		private var presetSelector:NumericStepper;
 
 
 		public function loadAssets(assets:AssetManager):void
@@ -116,8 +119,21 @@ package com.kizzo.views
 			this.randomizeButton.y = cnt*50;
 			cnt++;
 
-			this.textEffect = TextEffect.generateRandom();
+			this.presetSelector = new NumericStepper();
+			this.presetSelector.width = 140;
+			this.presetSelector.height = 50;
+			this.presetSelector.minimum = 1;
+			this.presetSelector.maximum = Presets.number();
+			this.presetSelector.value = 1;
+			this.presetSelector.step = 1;
+			this.presetSelector.addEventListener(Event.CHANGE, changePreset);
+			addChild(this.presetSelector);
+			this.presetSelector.y = cnt*50;
+			cnt++;
 
+			//this.textEffect = TextEffect.generateRandom();
+			this.textEffect = new TextEffect();
+			textEffect.fromJSON(Presets.current());
 			putEffectInEditor();
 		}
 
@@ -135,6 +151,15 @@ package com.kizzo.views
 			charContainer.x = 400;
 			charContainer.y = 100;
 			this.textEffect.apply(charContainer);
+		}
+
+
+		private function changePreset():void
+		{
+
+			//this.presetSelector.value++;
+			textEffect.fromJSON(Presets.getPreset(this.presetSelector.value));
+			run();
 		}
 
 

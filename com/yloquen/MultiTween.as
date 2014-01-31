@@ -1,6 +1,8 @@
 package com.yloquen
 {
 	import com.greensock.easing.Ease;
+	import flash.utils.describeType;
+	import flash.utils.getDefinitionByName;
 
 	public class MultiTween
 	{
@@ -110,5 +112,42 @@ package com.yloquen
 			_lastDuration=value;
 			this.durationRange = _lastDuration - _firstDuration;
 		}
+
+		public function toJSON(k):*
+		{
+			return {    "prop":             this.prop,
+						"firstVal":         _firstVal.toFixed(3),
+						"lastVal":          _lastVal.toFixed(3),
+						"distribFunc":      TextEffect.getEaseId(distribFunc),
+						"tweenEase":        TextEffect.getEaseId(distribFunc),
+						"randomEase":       randomEase,
+						"pickupOrder":      CharOrder.getOrderId(pickupOrder),
+						"masterDelay":      masterDelay.toFixed(3),
+						"delayDuration":    delayDuration.toFixed(3),
+						"delayDistrib":     TextEffect.getEaseId(delayDistrib),
+						"firstDuration":    _firstDuration.toFixed(3),
+						"lastDuration":     _lastDuration.toFixed(3),
+						"durationDistrib":  TextEffect.getEaseId(durationDistrib)
+			};
+		}
+
+
+		public function fromJSON(initObj:Object):void
+		{
+			this.prop = initObj.prop;
+			this.firstVal = initObj.firstVal;
+			this.lastVal = initObj.lastVal;
+			this.distribFunc = TextEffect.getEaseById(initObj.distribFunc);
+			this.tweenEase = TextEffect.getEaseById(initObj.tweenEase);
+			this.randomEase = initObj.randomEase;
+			this.pickupOrder = CharOrder.getOrderById(initObj.pickupOrder);
+			this.masterDelay = initObj.masterDelay;
+			this.delayDuration = initObj.delayDuration;
+			this.delayDistrib = TextEffect.getEaseById(initObj.delayDistrib);
+			this.firstDuration = initObj.firstDuration;
+			this.lastDuration = initObj.lastDuration;
+			this.durationDistrib = TextEffect.getEaseById(initObj.durationDistrib);
+		}
+
 	}
 }

@@ -28,6 +28,7 @@ package com.yloquen
 
 	public class TextEffect
 	{
+		// !IMPORTANT Add new ones on the bottom, so as not to break existing presets
 		private static const eases:Vector.<Ease> = Vector.<Ease>([
 			Back.easeIn,
 			Back.easeInOut,
@@ -163,6 +164,8 @@ package com.yloquen
 				textEffect.addTween(sYtween);
 			}
 
+			trace(JSON.stringify(textEffect));
+
 			return textEffect;
 		}
 
@@ -281,6 +284,41 @@ package com.yloquen
 		public function get multiTweens():Vector.<MultiTween>
 		{
 			return _multiTweens;
+		}
+
+		public static function getEaseId(ease:Ease):int
+		{
+			return eases.indexOf(ease);
+		}
+
+		public static function getEaseById(id:int):Ease
+		{
+			return eases[id];
+		}
+
+
+		public function toJSON(k):*
+		{
+			return {    "multiTweens": _multiTweens,
+						"pivot"     : {"x":pivot.x.toFixed(3), "y":pivot.y.toFixed(3)},
+						"randomPivotPerChar":_randomPivotPerChar
+			};
+		}
+
+
+		public function fromJSON(initObj:Object):void
+		{
+			this._multiTweens = new Vector.<MultiTween>();
+
+			this.pivot = new Point(initObj.pivot.x, initObj.pivot.y);
+			this.randomPivotPerChar = initObj.randomPivotPerChar;
+
+			for each (var obj:Object in initObj.multiTweens)
+			{
+				var multiTween:MultiTween = new MultiTween();
+				multiTween.fromJSON(obj);
+				this._multiTweens.push(multiTween);
+			}
 		}
 
 	}

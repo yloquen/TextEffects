@@ -4,25 +4,32 @@ package com.yloquen
 
 	public class CharOrder
 	{
-		private static var orderingFunctions:Vector.<Function> = Vector.<Function>([
+		// !IMPORTANT Add new ones on the bottom, so as not to break existing presets
+		private static var ORDER_FUNCS:Vector.<Function> = Vector.<Function>
+		([
 			LEFT_TO_RIGHT,
 			RANDOM,
 			RIGHT_TO_LEFT,
 			MODULO_2,
 			MODULO_3,
-			SQR
+			SQR,
+			SIN
 		]);
+
+		private static var SIN_RANDOM:Number;
 
 
 		public static function getRandomOrderFunction():Function
 		{
-			return orderingFunctions[int(Math.floor(Math.random()*orderingFunctions.length))];
+			return ORDER_FUNCS[int(Math.floor(Math.random()*ORDER_FUNCS.length))];
 		}
 
 
 		public static function getOrder(num:int, func:Function):Vector.<int>
 		{
 			var points:Array = new Array();
+
+			SIN_RANDOM = 1 + Math.random()*20;
 
 			for (var i:int=0; i < num; i++)
 			{
@@ -37,9 +44,7 @@ package com.yloquen
 			{
 				order[i] = points[i].x;
 			}
-			trace("------------------------------")
-			trace(order);
-			trace(orderingFunctions.indexOf(func))
+
 			return order;
 		}
 
@@ -74,6 +79,22 @@ package com.yloquen
 		{
 			index -= 0.001;
 			return index*index - num*index;
+		}
+
+		public static function SIN(index:int, num:int):Number
+		{
+			return Math.sin(index*SIN_RANDOM/num);
+		}
+
+
+		public static function getOrderId(orderFunc:Function):int
+		{
+			return ORDER_FUNCS.indexOf(orderFunc);
+		}
+
+		public static function getOrderById(id:int):Function
+		{
+			return ORDER_FUNCS[id];
 		}
 
 
