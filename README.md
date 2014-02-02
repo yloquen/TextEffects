@@ -12,7 +12,8 @@ Features
 	Uses the TweenMax library:
 	http://www.greensock.com/tweenmax/
 
-	GUI editor for the animations at: 
+	GUI editor for the animations at:
+	http://yloquen.eu5.org/TextEffects/
 
 
 Example code
