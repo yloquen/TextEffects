@@ -8,6 +8,7 @@ Features
 =====================
 
 	Animates bitmap texts in Starling.
+	Based on TweenMax.
 
 	Uses the TweenMax library:
 	http://www.greensock.com/tweenmax/
