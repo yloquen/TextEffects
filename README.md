@@ -18,17 +18,17 @@ Features
 Example code
 =====================
 
-// You can generate this with the GUI editor
-var effect:Object = {"randomPivotPerChar":false,"pivot":{"y":"0.500","x":"0.500"},"multiTweens":[{"prop":"scaleY","durationDistrib":"Linear.easeInOut","distribFunc":"Cubic.easeOut","tweenEase":"Bounce.easeOut","randomEase":false,"firstVal":"-26.000","orderingFunc":"RANDOM","lastVal":"25.950","masterDelay":"0.000","firstDuration":"0.728","delayDuration":"0.547","lastDuration":"0.226","delayDistrib":"Cubic.easeIn"}]};
-
-var textEffect:TextEffect = new TextEffect();
-textEffect.fromJSON(effect);
-var animatedText:String = "Text to animate";
-var bmpFont:BitmapFont = TextField.getBitmapFont("Your bitmap font");
-var charContainer:Sprite = bmpFont.createSprite(400, 400, animatedText, 30);
-addChild(charContainer);
-textEffect.generateTimeline(charContainer, animatedText);
-textEffect.timeline.play();
+	// You can generate this with the GUI editor
+	var effect:Object = {"randomPivotPerChar":false,"pivot":{"y":"0.500","x":"0.500"},"multiTweens":[{"prop":"scale","durationDistrib":"Linear.easeInOut","distribFunc":"Cubic.easeOut","tweenEase":"Bounce.easeOut","randomEase":false,"firstVal":"-26.000","orderingFunc":"RANDOM","lastVal":"25.950","masterDelay":"0.000","firstDuration":"0.728","delayDuration":"0.547","lastDuration":"0.226","delayDistrib":"Cubic.easeIn"}]};
+	
+	var textEffect:TextEffect = new TextEffect();
+	textEffect.fromJSON(effect);
+	var animatedText:String = "Text to animate";
+	var bmpFont:BitmapFont = TextField.getBitmapFont("Your bitmap font");
+	var charContainer:Sprite = bmpFont.createSprite(400, 400, animatedText, 30);
+	addChild(charContainer);
+	textEffect.generateTimeline(charContainer, animatedText);
+	textEffect.timeline.play();
 
 
 
