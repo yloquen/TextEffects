@@ -117,9 +117,9 @@ package com.yloquen.tools
 			}
 
 			this.randomEaseCheck = new Check();
-			this.randomEaseCheck.x = targetWidth*1.1;
+			this.randomEaseCheck.x = targetWidth*1.2;
 			this.randomEaseCheck.height = this.randomEaseCheck.width = this.targetHeight*.5;
-			this.randomEaseCheck.y = sliderOrder.indexOf("randomEase")*targetHeight*.7;
+			this.randomEaseCheck.y = sliderOrder.indexOf("randomEase")*targetHeight*.7 +targetHeight*.08;
 			this.randomEaseCheck.addEventListener(Event.CHANGE, onRandomEaseChange);
 			sliderContainer.addChild(this.randomEaseCheck);
 
